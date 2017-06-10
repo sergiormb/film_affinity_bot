@@ -56,7 +56,7 @@ def _return_list_movies(bot, update, service, movies):
     )
 
 
-def _return_movie(bot, update, service, movie):
+def _return_movie(bot, update, movie):
     html = '%s - %s' % (movie['title'], movie['raiting'])
     bot.send_message(
         chat_id=update.message.chat_id,
