@@ -19,69 +19,75 @@ logger = logging.getLogger(__name__)
 
 class FilmaffinityBot:
 
-    def __init__(self, bot, update):
-        self.bot = bot
-        self.update = update
+    def __init__(self):
         self.service = python_filmaffinity.Filmaffinity()
 
-    def start(self):
-        self.update.message.reply_text('Hi!')
+    def start(self, bot, update):
+        update.message.reply_text('Hi!')
 
-    def help(self):
-        self.update.message.reply_text('Help!')
+    def help(self, bot, update):
+        html = """
+            /top - Top from Filmaffinity \n
+            /top_hbo - Top movies from HBO \n
+            /top_netflix - Top movies from Netflix \n
+            /premieres - Premieres \n
+            /recommend_netflix - Return a movie random in Netflix \n
+            /recommend_hbo - Return a movie random in HBO \n
+        """
+        bot.send_message(chat_id=update.message.chat_id, text=html, parse_mode=telegram.ParseMode.HTML)
 
     def _get_poster_url(self, movie):
         poster = movie['poster']
         poster = poster.replace("https://", "http://")
         return poster
 
-    def _return_list_movies(self, movies):
+    def _return_list_movies(self, bot, update, movies):
         html = ''
         for count, movie in enumerate(movies):
             url = self.service.url_film + str(movie['id']) + '.html'
             html += "%s.- <a href='%s'>%s</a>\n" % (count + 1, url, movie['title'])
 
-        self.bot.send_message(
-            chat_id=self.update.message.chat_id,
+        bot.send_message(
+            chat_id=update.message.chat_id,
             text=html,
             parse_mode=telegram.ParseMode.HTML
         )
 
-    def _return_movie(self, movie):
-        self.bot.send_photo(chat_id=self.update.message.chat_id, photo=self._get_poster_url(movie))
+    def _return_movie(self, bot, update, movie):
+        bot.send_photo(chat_id=update.message.chat_id, photo=self._get_poster_url(movie))
         html = '%s - %s' % (movie['title'], movie['rating'])
-        self.bot.send_message(
-            chat_id=self.update.message.chat_id,
+        bot.send_message(
+            chat_id=update.message.chat_id,
             text=html,
             parse_mode=telegram.ParseMode.HTML
         )
 
-    def top(self):
+    def top(self, bot, update):
         movies = self.service.top_filmaffinity()
-        self._return_list_movies(movies)
+        self._return_list_movies(bot, update, movies)
 
-    def top_netflix(self):
+    def top_netflix(self, bot, update):
         movies = self.service.top_netflix()
-        self._return_list_movies(movies)
+        self._return_list_movies(bot, update, movies)
 
-    def top_hbo(self):
+    def top_hbo(self, bot, update):
         movies = self.service.top_hbo()
-        self._return_list_movies(movies)
+        self._return_list_movies(bot, update, movies)
 
-    def recommend_netflix(self):
+    def recommend_netflix(self, bot, update):
         movie = self.service.recommend_netflix()
-        self._return_movie(movie)
+        self._return_movie(bot, update, movie)
 
-    def recommend_hbo(self):
+    def recommend_hbo(self, bot, update):
         movie = self.service.recommend_hbo()
-        self._return_movie(movie)
+        self._return_movie(bot, update, movie)
 
-    def premieres(self):
+    def premieres(self, bot, update):
         movies = self.service.top_premieres()
-        self._return_list_movies(movies)
+        self._return_list_movies(bot, update, movies)
 
-    def inlinequery(self):
-        query = self.update.inline_query.query
+    def inlinequery(self, bot, update):
+        query = update.inline_query.query
         results = list()
         movies = self.service.search(title=query)
         for movie in movies:
@@ -94,10 +100,10 @@ class FilmaffinityBot:
                                                     input_message_content=InputTextMessageContent(
                                                         url)))
 
-        self.update.inline_query.answer(results)
+        update.inline_query.answer(results)
 
-    def error(self, error):
-        logger.warning('Update "%s" caused error "%s"' % (self.update, error))
+    def error(self, bot, update, error):
+        logger.warning('Update "%s" caused error "%s"' % (update, error))
 
 
 def main():
@@ -109,7 +115,7 @@ def main():
     updater.bot.set_webhook("https://filmaffinitybot.herokuapp.com/" + TOKEN)
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-    filmaffinity = FilmaffinityBot(bot=updater.bot, update=updater)
+    filmaffinity = FilmaffinityBot()
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", filmaffinity.start))
     dp.add_handler(CommandHandler("help", filmaffinity.help))
