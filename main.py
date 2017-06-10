@@ -1,26 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# Simple Bot to reply to Telegram messages
-# This program is dedicated to the public domain under the CC0 license.
-"""
-This Bot uses the Updater class to handle the bot.
 
-First, a few handler functions are defined. Then, those functions are passed to
-the Dispatcher and registered at their respective places.
-Then, the bot is started and runs until we press Ctrl-C on the command line.
-
-Usage:
-Basic inline bot example. Applies different text transformations.
-Press Ctrl-C on the command line or send a signal to the process to stop the
-bot.
-"""
 import python_filmaffinity
-from uuid import uuid4
 import os
-import re
 
-from telegram import InlineQueryResultArticle, ParseMode, \
+from telegram import InlineQueryResultArticle, \
     InputTextMessageContent
 import telegram
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler
@@ -33,101 +17,87 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-# Define a few command handlers. These usually take the two arguments bot and
-# update. Error handlers also receive the raised TelegramError object in error.
-def start(bot, update):
-    update.message.reply_text('Hi!')
+class FilmaffinityBot:
 
+    def __init__(self, bot, update):
+        self.bot = bot
+        self.update = update
+        self.service = python_filmaffinity.Filmaffinity()
 
-def help(bot, update):
-    update.message.reply_text('Help!')
+    def start(self):
+        self.update.message.reply_text('Hi!')
 
+    def help(self):
+        self.update.message.reply_text('Help!')
 
-def _return_list_movies(bot, update, service, movies):
-    html = ''
-    for count, movie in enumerate(movies):
-        url = service.url_film + str(movie['id']) + '.html'
-        html += "%s.- <a href='%s'>%s</a>\n" % (count + 1, url, movie['title'])
-
-    bot.send_message(
-        chat_id=update.message.chat_id,
-        text=html,
-        parse_mode=telegram.ParseMode.HTML
-    )
-
-
-def _return_movie(bot, update, movie):
-    html = '%s - %s' % (movie['title'], movie['rating'])
-    bot.send_message(
-        chat_id=update.message.chat_id,
-        text=html,
-        parse_mode=telegram.ParseMode.HTML
-    )
-
-
-def top(bot, update):
-    service = python_filmaffinity.Filmaffinity()
-    movies = service.top_filmaffinity()
-    _return_list_movies(bot, update, service, movies)
-
-
-def netflix(bot, update):
-    service = python_filmaffinity.Filmaffinity()
-    movies = service.top_netflix()
-    _return_list_movies(bot, update, service, movies)
-
-
-def recommend_netflix(bot, update):
-    service = python_filmaffinity.Filmaffinity()
-    movie = service.recommend_netflix()
-    _return_movie(bot, update, movie)
-
-
-def recommend_hbo(bot, update):
-    service = python_filmaffinity.Filmaffinity()
-    movie = service.recommend_hbo()
-    _return_movie(bot, update, movie)
-
-
-def hbo(bot, update):
-    service = python_filmaffinity.Filmaffinity()
-    movies = service.top_hbo()
-    _return_list_movies(bot, update, service, movies)
-
-
-def premieres(bot, update):
-    service = python_filmaffinity.Filmaffinity()
-    movies = service.top_premieres()
-    _return_list_movies(bot, update, service, movies)
-
-
-def escape_markdown(text):
-    """Helper function to escape telegram markup symbols"""
-    escape_chars = '\*_`\['
-    return re.sub(r'([%s])' % escape_chars, r'\\\1', text)
-
-
-def inlinequery(bot, update):
-    query = update.inline_query.query
-    results = list()
-    service = python_filmaffinity.Filmaffinity()
-    movies = service.search(title=query)
-    for movie in movies:
+    def _get_poster_url(self, movie):
         poster = movie['poster']
         poster = poster.replace("https://", "http://")
-        url = service.url_film + str(movie['id']) + '.html'
-        results.append(InlineQueryResultArticle(id=movie['id'],
-                                                title=movie['title'],
-                                                url=url,
-                                                thumb_url=poster,
-                                                input_message_content=InputTextMessageContent(
-                                                    url)))
+        return poster
 
-    update.inline_query.answer(results)
+    def _return_list_movies(self, movies):
+        html = ''
+        for count, movie in enumerate(movies):
+            url = self.service.url_film + str(movie['id']) + '.html'
+            html += "%s.- <a href='%s'>%s</a>\n" % (count + 1, url, movie['title'])
 
+        self.bot.send_message(
+            chat_id=self.update.message.chat_id,
+            text=html,
+            parse_mode=telegram.ParseMode.HTML
+        )
 
-def error(bot, update, error):
-    logger.warning('Update "%s" caused error "%s"' % (update, error))
+    def _return_movie(self, movie):
+        self.bot.send_photo(chat_id=self.update.message.chat_id, photo=self._get_poster_url(movie))
+        html = '%s - %s' % (movie['title'], movie['rating'])
+        self.bot.send_message(
+            chat_id=self.update.message.chat_id,
+            text=html,
+            parse_mode=telegram.ParseMode.HTML
+        )
+
+    def top(self):
+        movies = self.service.top_filmaffinity()
+        self._return_list_movies(movies)
+
+    def top_netflix(self):
+        movies = self.service.top_netflix()
+        self._return_list_movies(movies)
+
+    def top_hbo(self):
+        movies = self.service.top_hbo()
+        self._return_list_movies(movies)
+
+    def recommend_netflix(self):
+        movie = self.service.recommend_netflix()
+        self._return_movie(movie)
+
+    def recommend_hbo(self):
+        movie = self.service.recommend_hbo()
+        self._return_movie(movie)
+
+    def premieres(self):
+        movies = self.service.top_premieres()
+        self._return_list_movies(movies)
+
+    def inlinequery(self):
+        query = self.update.inline_query.query
+        results = list()
+        movies = self.service.search(title=query)
+        for movie in movies:
+            poster = self._get_poster_url(movie)
+            url = self.service.url_film + str(movie['id']) + '.html'
+            results.append(InlineQueryResultArticle(id=movie['id'],
+                                                    title=movie['title'],
+                                                    url=url,
+                                                    thumb_url=poster,
+                                                    input_message_content=InputTextMessageContent(
+                                                        url)))
+
+        self.update.inline_query.answer(results)
+
+    def error(self, error):
+        logger.warning('Update "%s" caused error "%s"' % (self.update, error))
 
 
 def main():
@@ -139,29 +109,26 @@ def main():
     updater.bot.set_webhook("https://filmaffinitybot.herokuapp.com/" + TOKEN)
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-
+    filmaffinity = FilmaffinityBot(bot=updater.bot, update=updater)
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
-    dp.add_handler(CommandHandler("top", top))
-    dp.add_handler(CommandHandler("top_netflix", netflix))
-    dp.add_handler(CommandHandler("top_hbo", hbo))
-    dp.add_handler(CommandHandler("recommend_netflix", recommend_netflix))
-    dp.add_handler(CommandHandler("recommend_hbo", recommend_hbo))
-    dp.add_handler(CommandHandler("premieres", premieres))
+    dp.add_handler(CommandHandler("start", filmaffinity.start))
+    dp.add_handler(CommandHandler("help", filmaffinity.help))
+    dp.add_handler(CommandHandler("top", filmaffinity.top))
+    dp.add_handler(CommandHandler("top_netflix", filmaffinity.top_netflix))
+    dp.add_handler(CommandHandler("top_hbo", filmaffinity.top_hbo))
+    dp.add_handler(CommandHandler("recommend_netflix", filmaffinity.recommend_netflix))
+    dp.add_handler(CommandHandler("recommend_hbo", filmaffinity.recommend_hbo))
+    dp.add_handler(CommandHandler("premieres", filmaffinity.premieres))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(InlineQueryHandler(inlinequery))
+    dp.add_handler(InlineQueryHandler(filmaffinity.inlinequery))
 
     # log all errors
-    dp.add_error_handler(error)
+    dp.add_error_handler(filmaffinity.error)
 
     # Start the Bot
     updater.start_polling()
 
-    # Block until the user presses Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
 
 
