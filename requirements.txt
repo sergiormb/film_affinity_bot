@@ -1,1 +1,2 @@
 python_filmaffinity==0.0.3
+python-telegram-bot==6.0.3
