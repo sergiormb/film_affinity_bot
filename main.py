@@ -56,6 +56,15 @@ def _return_list_movies(bot, update, service, movies):
     )
 
 
+def _return_movie(bot, update, service, movie):
+    html = '%s - %s' % (movie['title'], movie['raiting'])
+    bot.send_message(
+        chat_id=update.message.chat_id,
+        text=html,
+        parse_mode=telegram.ParseMode.HTML
+    )
+
+
 def top(bot, update):
     service = python_filmaffinity.Filmaffinity()
     movies = service.top_filmaffinity()
@@ -66,6 +75,18 @@ def netflix(bot, update):
     service = python_filmaffinity.Filmaffinity()
     movies = service.top_netflix()
     _return_list_movies(bot, update, service, movies)
+
+
+def recommend_netflix(bot, update):
+    service = python_filmaffinity.Filmaffinity()
+    movie = service.recommend_netflix()
+    _return_movie(bot, update, movie)
+
+
+def recommend_hbo(bot, update):
+    service = python_filmaffinity.Filmaffinity()
+    movie = service.recommend_hbo()
+    _return_movie(bot, update, movie)
 
 
 def hbo(bot, update):
@@ -125,6 +146,8 @@ def main():
     dp.add_handler(CommandHandler("top", top))
     dp.add_handler(CommandHandler("top_netflix", netflix))
     dp.add_handler(CommandHandler("top_hbo", hbo))
+    dp.add_handler(CommandHandler("recommend_netflix", recommend_netflix))
+    dp.add_handler(CommandHandler("recommend_hbo", recommend_hbo))
     dp.add_handler(CommandHandler("premieres", premieres))
 
     # on noncommand i.e message - echo the message on Telegram
