@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import urllib
+import urllib2
 import python_filmaffinity
 import os
-
+from bs4 import BeautifulSoup
 from telegram import InlineQueryResultArticle, \
     InputTextMessageContent
 import telegram
@@ -36,6 +37,16 @@ class FilmaffinityBot:
         """
         bot.send_message(chat_id=update.message.chat_id, text=html, parse_mode=telegram.ParseMode.HTML)
 
+    def _search_youtube(self, title):
+        title += ' trailer'
+        query = urllib.quote(title)
+        url = "https://www.youtube.com/results?search_query=" + query
+        response = urllib2.urlopen(url)
+        html = response.read()
+        soup = BeautifulSoup(html)
+        vid = soup.findAll(attrs={'class': 'yt-uix-tile-link'})[0]
+        return 'https://www.youtube.com' + vid['href']
+
     def _get_poster_url(self, movie):
         poster = movie['poster']
         poster = poster.replace("https://", "http://")
@@ -55,7 +66,7 @@ class FilmaffinityBot:
 
     def _return_movie(self, bot, update, movie):
         bot.send_photo(chat_id=update.message.chat_id, photo=self._get_poster_url(movie))
-        html = '%s - %s' % (movie['title'], movie['rating'])
+        html = '%s - %s - %s' % (movie['title'], movie['rating'], self._search_youtube(movie['title']))
         bot.send_message(
             chat_id=update.message.chat_id,
             text=html,
