@@ -32,8 +32,8 @@ class FilmaffinityBot:
             /top_filmaffinity - Top from Filmaffinity \n
             /top_hbo - Top movies from HBO \n
             /top_netflix - Top movies from Netflix \n
-            /top_tv_series - Top from Filmaffinity \n
-            /top_dvd - Top from Filmaffinity \n
+            /top_tv_series - Top TV Series \n
+            /top_dvd - Top new DVD \n
             /premieres - Premieres \n
             /recommend_netflix - Return a movie random in Netflix \n
             /recommend_hbo - Return a movie random in HBO \n
@@ -59,7 +59,7 @@ class FilmaffinityBot:
         html = ''
         for count, movie in enumerate(movies):
             url = self.service.url_film + str(movie['id']) + '.html'
-            html += "%s.- <a href='%s'>%s (%s)</a>\n" % (count + 1, url, movie['title'], movie['raiting'])
+            html += "%s.- <a href='%s'>%s (%s)</a>\n" % (count + 1, url, movie['title'], movie['rating'])
 
         bot.send_message(
             chat_id=update.message.chat_id,
