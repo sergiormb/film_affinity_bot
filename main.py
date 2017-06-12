@@ -24,13 +24,16 @@ class FilmaffinityBot:
         self.service = python_filmaffinity.Filmaffinity()
 
     def start(self, bot, update):
-        update.message.reply_text('Hi!')
+        update.message.reply_text('Hi, it helps you to find any movie in Filmaffinity by just mentioning me @Film_Affinity_bot')
 
     def help(self, bot, update):
         html = """
-            /top - Top from Filmaffinity \n
+        This is a bot for Filmaffinity, you can use any of these commands \n
+            /top_filmaffinity - Top from Filmaffinity \n
             /top_hbo - Top movies from HBO \n
             /top_netflix - Top movies from Netflix \n
+            /top_tv_series - Top from Filmaffinity \n
+            /top_dvd - Top from Filmaffinity \n
             /premieres - Premieres \n
             /recommend_netflix - Return a movie random in Netflix \n
             /recommend_hbo - Return a movie random in HBO \n
@@ -56,7 +59,7 @@ class FilmaffinityBot:
         html = ''
         for count, movie in enumerate(movies):
             url = self.service.url_film + str(movie['id']) + '.html'
-            html += "%s.- <a href='%s'>%s</a>\n" % (count + 1, url, movie['title'])
+            html += "%s.- <a href='%s'>%s (%s)</a>\n" % (count + 1, url, movie['title'], movie['raiting'])
 
         bot.send_message(
             chat_id=update.message.chat_id,
@@ -65,15 +68,20 @@ class FilmaffinityBot:
         )
 
     def _return_movie(self, bot, update, movie):
-        bot.send_photo(chat_id=update.message.chat_id, photo=self._get_poster_url(movie))
-        html = '%s - %s - %s' % (movie['title'], movie['rating'], self._search_youtube(movie['title']))
+        html = '%s - %s' % (movie['title'], movie['rating'])
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text=html,
+            parse_mode=telegram.ParseMode.HTML
+        )
+        html = 'Trailer: %s ' % self._search_youtube(movie['title'])
         bot.send_message(
             chat_id=update.message.chat_id,
             text=html,
             parse_mode=telegram.ParseMode.HTML
         )
 
-    def top(self, bot, update):
+    def top_filmaffinity(self, bot, update):
         movies = self.service.top_filmaffinity()
         self._return_list_movies(bot, update, movies)
 
@@ -83,6 +91,14 @@ class FilmaffinityBot:
 
     def top_hbo(self, bot, update):
         movies = self.service.top_hbo()
+        self._return_list_movies(bot, update, movies)
+
+    def top_dvd(self, bot, update):
+        movies = self.service.top_dvd()
+        self._return_list_movies(bot, update, movies)
+
+    def top_tv_series(self, bot, update):
+        movies = self.service.top_tv_series()
         self._return_list_movies(bot, update, movies)
 
     def recommend_netflix(self, bot, update):
@@ -130,9 +146,11 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", filmaffinity.start))
     dp.add_handler(CommandHandler("help", filmaffinity.help))
-    dp.add_handler(CommandHandler("top", filmaffinity.top))
+    dp.add_handler(CommandHandler("top_filmaffinity", filmaffinity.top_filmaffinity))
     dp.add_handler(CommandHandler("top_netflix", filmaffinity.top_netflix))
     dp.add_handler(CommandHandler("top_hbo", filmaffinity.top_hbo))
+    dp.add_handler(CommandHandler("top_dvd", filmaffinity.top_dvd))
+    dp.add_handler(CommandHandler("top_tv_series", filmaffinity.top_tv_series))
     dp.add_handler(CommandHandler("recommend_netflix", filmaffinity.recommend_netflix))
     dp.add_handler(CommandHandler("recommend_hbo", filmaffinity.recommend_hbo))
     dp.add_handler(CommandHandler("premieres", filmaffinity.premieres))
