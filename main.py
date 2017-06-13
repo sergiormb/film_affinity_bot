@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import botan
+from botanio import botan
 import python_filmaffinity
 import os
 from telegram import InlineQueryResultArticle, \
