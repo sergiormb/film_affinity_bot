@@ -127,12 +127,15 @@ class FilmaffinityBot:
         for movie in movies:
             poster = self._get_poster_url(movie)
             url = self.service.url_film + str(movie['id']) + '.html'
+            title = '%s - (%s)' % (movie['title'], movie['rating'])
+            output = '%s - (%s) Show more: %s' % (movie['title'], movie['rating'], url)
             results.append(InlineQueryResultArticle(id=movie['id'],
-                                                    title=movie['title'],
+                                                    title=title,
                                                     url=url,
+                                                    hide_url=True,
                                                     thumb_url=poster,
-                                                    input_message_content=InputTextMessageContent(
-                                                        url)))
+                                                    input_message_content=InputTextMessageContent(output)
+                                                    ))
 
         update.inline_query.answer(results)
 
