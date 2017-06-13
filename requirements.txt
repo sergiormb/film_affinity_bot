@@ -1,2 +1,3 @@
 python_filmaffinity==0.0.5
 python-telegram-bot==6.0.3
+cachetools==1.1.5
