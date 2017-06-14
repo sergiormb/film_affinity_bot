@@ -28,14 +28,14 @@ class FilmaffinityBot:
     def help(self, bot, update):
         html = """
         This is a bot for Filmaffinity, you can use any of these commands \n
-            /top_filmaffinity - Top from Filmaffinity \n
-            /top_hbo - Top movies from HBO \n
-            /top_netflix - Top movies from Netflix \n
-            /top_tv_series - Top TV Series \n
-            /top_dvd - Top new DVD \n
-            /premieres - Premieres \n
-            /recommend_netflix - Return a movie random in Netflix \n
-            /recommend_hbo - Return a movie random in HBO \n
+        /top_filmaffinity - Top from Filmaffinity \n
+        /top_hbo - Top movies from HBO \n
+        /top_netflix - Top movies from Netflix \n
+        /top_tv_series - Top TV Series \n
+        /top_dvd - Top new DVD \n
+        /premieres - Premieres \n
+        /recommend_netflix - Return a movie random in Netflix \n
+        /recommend_hbo - Return a movie random in HBO \n
         """
         bot.send_message(chat_id=update.message.chat_id, text=html, parse_mode=telegram.ParseMode.HTML)
 
