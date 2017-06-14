@@ -1,4 +1,4 @@
-# Film Affinity Bot
+# @Film_Affinity_Bot
 
 # Commands
 
