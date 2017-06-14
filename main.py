@@ -36,6 +36,7 @@ class FilmaffinityBot:
         /premieres - Premieres \n
         /recommend_netflix - Return a movie random in Netflix \n
         /recommend_hbo - Return a movie random in HBO \n
+        You can help me and vote my bot. THANKS!: https://telegram.me/storebot?start=film_affinity_bot
         """
         bot.send_message(chat_id=update.message.chat_id, text=html, parse_mode=telegram.ParseMode.HTML)
 
