@@ -75,7 +75,8 @@ class FilmaffinityBot:
             parse_mode=telegram.ParseMode.HTML
         )
         reviews = movie['reviews']
-        for review in reviews:
+        if reviews:
+            review = reviews[0]
             html = u'%s: %s Más: %s' % (
                 review['author'], review['review'], review.get('url', None))
             bot.send_message(
@@ -87,9 +88,9 @@ class FilmaffinityBot:
         if images:
             stills = images.get('stills', None)
             if stills:
-                for still in stills:      
-                    bot.send_photo(chat_id=update.message.chat_id,
-                                   photo=still['image'])
+                stills = stills[0]
+                bot.send_photo(chat_id=update.message.chat_id,
+                                photo=still['image'])
 
     def _save_stats(self, bot, update):
         uid = update.message.from_user
