@@ -76,7 +76,7 @@ class FilmaffinityBot:
         )
         reviews = movie['reviews']
         for review in reviews:
-            html = '%s: %s Más: %s' % (
+            html = u'%s: %s Más: %s' % (
                 review['author'], review['review'], review.get('url', None))
             bot.send_message(
                 chat_id=update.message.chat_id,
