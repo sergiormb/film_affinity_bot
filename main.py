@@ -74,6 +74,22 @@ class FilmaffinityBot:
             text=html,
             parse_mode=telegram.ParseMode.HTML
         )
+        reviews = movie['reviews']
+        for review in reviews:
+            html = '%s: %s Más: %s' % (
+                review['author'], review['review'], review.get('url', None))
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text=html,
+                parse_mode=telegram.ParseMode.HTML
+            )
+        images = movie.get('images', None)
+        if images:
+            stills = images.get('stills', None)
+            if stills:
+                for still in stills:      
+                    bot.send_photo(chat_id=update.message.chat_id,
+                                   photo=still['image'])
 
     def _save_stats(self, bot, update):
         uid = update.message.from_user
@@ -89,6 +105,16 @@ class FilmaffinityBot:
     def top_netflix(self, bot, update):
         self._save_stats(bot, update)
         movies = self.service.top_netflix()
+        self._return_list_movies(bot, update, movies)
+
+    def top_movistar(self, bot, update):
+        self._save_stats(bot, update)
+        movies = self.service.top_movistar()
+        self._return_list_movies(bot, update, movies)
+
+    def top_rakuten(self, bot, update):
+        self._save_stats(bot, update)
+        movies = self.service.top_rakuten()
         self._return_list_movies(bot, update, movies)
 
     def top_hbo(self, bot, update):
@@ -108,12 +134,17 @@ class FilmaffinityBot:
 
     def recommend_netflix(self, bot, update):
         self._save_stats(bot, update)
-        movie = self.service.recommend_netflix()
+        movie = self.service.recommend_netflix(images=True)
+        self._return_movie(bot, update, movie)
+
+    def recommend_movistar(self, bot, update):
+        self._save_stats(bot, update)
+        movie = self.service.recommend_movistar(images=True)
         self._return_movie(bot, update, movie)
 
     def recommend_hbo(self, bot, update):
         self._save_stats(bot, update)
-        movie = self.service.recommend_hbo()
+        movie = self.service.recommend_hbo(images=True)
         self._return_movie(bot, update, movie)
 
     def premieres(self, bot, update):
