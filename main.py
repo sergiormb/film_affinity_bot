@@ -20,7 +20,7 @@ BOTAN_TOKEN = os.environ.get('BOTAN_TOKEN')
 class FilmaffinityBot:
 
     def __init__(self):
-        self.service = python_filmaffinity.Filmaffinity()
+        self.service = python_filmaffinity.FilmAffinity()
 
     def start(self, bot, update):
         update.message.reply_text('Hi, it helps you to find any movie in Filmaffinity by just mentioning me @Film_Affinity_bot')
