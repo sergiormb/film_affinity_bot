@@ -193,8 +193,11 @@ def main():
     dp.add_handler(CommandHandler("top_netflix", filmaffinity.top_netflix))
     dp.add_handler(CommandHandler("top_hbo", filmaffinity.top_hbo))
     dp.add_handler(CommandHandler("top_dvd", filmaffinity.top_dvd))
+    dp.add_handler(CommandHandler("top_movistar", filmaffinity.top_movistar))
+    dp.add_handler(CommandHandler("top_rakuten", filmaffinity.top_rakuten))
     dp.add_handler(CommandHandler("top_tv_series", filmaffinity.top_tv_series))
     dp.add_handler(CommandHandler("recommend_netflix", filmaffinity.recommend_netflix))
+    dp.add_handler(CommandHandler("recommend_movistar", filmaffinity.recommend_movistar))
     dp.add_handler(CommandHandler("recommend_hbo", filmaffinity.recommend_hbo))
     dp.add_handler(CommandHandler("premieres", filmaffinity.premieres))
 
