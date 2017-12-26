@@ -88,7 +88,7 @@ class FilmaffinityBot:
         if images:
             stills = images.get('stills', None)
             if stills:
-                stills = stills[0]
+                still = stills[0]
                 bot.send_photo(chat_id=update.message.chat_id,
                                 photo=still['image'])
 
