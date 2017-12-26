@@ -1,4 +1,4 @@
-python_filmaffinity==0.0.7
+python_filmaffinity==0.0.8
 python-telegram-bot==6.0.3
 cachetools==1.1.5
 botanio==1.0.0
